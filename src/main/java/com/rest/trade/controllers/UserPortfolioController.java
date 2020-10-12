@@ -40,30 +40,30 @@ public class UserPortfolioController {
 	private static final Logger LOG = LoggerFactory.getLogger(UserPortfolioController.class);
 	
 	@RequestMapping(value="/display_user_portfolio", method=RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public String displayTrades(@RequestBody TextNode email) {
-		return email.asText();
-//		List<Trade> tradesToDisplay = new ArrayList<Trade>();
-//		List<UserPortfolio> userPortfolio = new ArrayList<UserPortfolio>();
-//	    userPortfolio = userPortfolioRepo.findAll();
-//		List<String> tradeIDs = new ArrayList<String>();
-//		for(int i=1;  i<userPortfolio.size(); i++) {
-//			System.out.println(userPortfolio.get(i).getEmail());
-//			if(userPortfolio.get(i).getEmail().equals(email)) {
-//				tradeIDs.add(userPortfolio.get(i).getTradeID());
-//			}
-//		}
-//		System.out.println(tradeIDs.size());
-//		if(tradeIDs.size() != 0) {
-//			for(int i=0; i!=tradeIDs.size(); i++) {
-//				Trade trades = tradeRepo.findByTradeID(tradeIDs.get(i));
-//				tradesToDisplay.add(trades);
-//			}
-//			LOG.debug("User portfolio retrieved");
-//			return tradesToDisplay;
-//		} else {
-//			LOG.debug("User has made no transactions to list");
-//			return tradesToDisplay;
-//		}		
+	public List<Trade> displayTrades(@RequestBody ObjectNode objectNode) {
+		String email = objectNode.get("email").asText();
+		List<Trade> tradesToDisplay = new ArrayList<Trade>();
+		List<UserPortfolio> userPortfolio = new ArrayList<UserPortfolio>();
+	    userPortfolio = userPortfolioRepo.findAll();
+		List<String> tradeIDs = new ArrayList<String>();
+		for(int i=1;  i<userPortfolio.size(); i++) {
+			if(userPortfolio.get(i).getEmail().equals(email)) {
+				tradeIDs.add(userPortfolio.get(i).getTradeID());
+			}
+		}
+		
+		if(tradeIDs.size() != 0) {
+			for(int i=0; i!=tradeIDs.size(); i++) {
+				Trade trades = tradeRepo.findByTradeID(tradeIDs.get(i));
+				tradesToDisplay.add(trades);
+				//System.out.println(trades.getTotalAmt())
+			}
+			LOG.debug("User portfolio retrieved");
+			return tradesToDisplay;
+		} else {
+			LOG.debug("User has made no transactions to list");
+			return tradesToDisplay;
+		}		
 	}
 	
 	@RequestMapping(value="/make_trade", method=RequestMethod.POST)
@@ -90,11 +90,12 @@ public class UserPortfolioController {
 			double price = stock.getQuote().getPrice().doubleValue();
 			trade.setPrice(price);
 			trade.setTotalAmt(price * trade.getQty());
-			tradeRepo.save(trade);
+			
 			
 			if(type.equalsIgnoreCase("buy"))
 				trade.setType(TradeType.BUY);
 			else trade.setType(TradeType.SELL);
+			tradeRepo.save(trade);
 			
 			UserPortfolio userPortfolio = new UserPortfolio();
 			userPortfolio.setEmail(email);
