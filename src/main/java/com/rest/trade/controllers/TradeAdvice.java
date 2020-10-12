@@ -93,6 +93,7 @@ public class TradeAdvice {
 		 else {
 			LOG.debug("User has made no transactions to list");
 			return ret_str;
+			//comments
 		}		
 	
 	}
