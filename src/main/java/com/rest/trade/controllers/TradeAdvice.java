@@ -1,5 +1,6 @@
 package com.rest.trade.controllers;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.rest.trade.models.CompanyPortfolio;
 import com.rest.trade.models.Trade;
 import com.rest.trade.models.UserPortfolio;
+import com.rest.trade.repositories.CompanyPortfolioRepo;
 import com.rest.trade.repositories.TradeRepo;
 import com.rest.trade.repositories.UserPortfolioRepo;
 
@@ -24,10 +27,13 @@ import com.rest.trade.repositories.UserPortfolioRepo;
 public class TradeAdvice {
 	
 	@Autowired
-	private TradeRepo tradeRepo;
+	private  TradeRepo tradeRepo;
 	
 	@Autowired
 	private UserPortfolioRepo userPortfolioRepo;
+	
+	@Autowired
+	private CompanyPortfolioRepo cmpPortfolioRepo;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(TradeAdvice.class);
 	
@@ -37,8 +43,8 @@ public class TradeAdvice {
 		List<Trade> tradesToDisplay = new ArrayList<Trade>();
 		List<String> types = new ArrayList<>();
 		List<Double> amt = new ArrayList<>();
-		double amount =10000.0;
-		double tickerPrice=0.0;
+		double amount= 10000.0;
+		BigDecimal tickerPrice = new BigDecimal("0.0");
 		double tot = 0.0;
 		String s = "";
 		String ret_str = "";
@@ -72,15 +78,15 @@ public class TradeAdvice {
 			}
 			String ticker = objectNode.get("ticker").asText();
 			int qty = objectNode.get("qty").asInt();
-			List<Trade> trade = new ArrayList<Trade>();
-		    trade = tradeRepo.findAll();
-			 tickerPrice = 0.0;
+			List<CompanyPortfolio> trade = new ArrayList<CompanyPortfolio>();
+		    trade = cmpPortfolioRepo.findAll();
+			// tickerPrice = 0.0;
 			for(int i=1;  i<trade.size(); i++) {
 				if(trade.get(i).getTicker().equals(ticker)) 
 					tickerPrice = trade.get(i).getPrice();				
 			}
-			
-			 tot = tickerPrice * qty;
+			double tp = tickerPrice.doubleValue();
+			 tot = tp* qty;
 			 //String s ="";
 			 double buy = amount - tot;
 			 double sell = amount + tot;
