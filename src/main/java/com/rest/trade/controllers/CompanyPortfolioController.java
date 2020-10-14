@@ -9,6 +9,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,7 @@ import yahoofinance.YahooFinance;
 
 @RestController
 @RequestMapping("/api")
+@Component
 public class CompanyPortfolioController {
 	@Autowired 
 	private CompanyPortfolioRepo companyPortfolioRepo;
@@ -31,6 +34,7 @@ public class CompanyPortfolioController {
 	
 	private Stock stock = null;
 	
+	@Scheduled(fixedRate = 60000)
 	@RequestMapping(value="/load_data", method=RequestMethod.POST)
 	public String loadData() {
 		this.companyPortfolioRepo.deleteAll();
